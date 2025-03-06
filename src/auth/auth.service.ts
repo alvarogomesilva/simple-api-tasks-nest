@@ -2,12 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { compareSync } from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthSignInDto } from './dto/auth-sign-in.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        private prisma: PrismaService
+        private prisma: PrismaService,
+        private jwtService: JwtService
     ) { }
 
     async signIn(signInDto: AuthSignInDto): Promise<any> {
@@ -28,8 +30,10 @@ export class AuthService {
             throw new UnauthorizedException('Usuario/senha incorretos');
         }
 
+        const payload = { sub: user.id, email: user.email };
 
-
-        return { ok: true };
+        return {
+            token: await this.jwtService.signAsync(payload),
+        };
     }
 }
