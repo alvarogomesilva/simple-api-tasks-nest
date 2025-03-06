@@ -3,12 +3,15 @@ import { compareSync } from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthSignInDto } from './dto/auth-sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
+import { BcryptService } from './hash/bcrypt.service';
+import { HashingService } from './hash/hashing.service';
 
 @Injectable()
 export class AuthService {
 
     constructor(
         private prisma: PrismaService,
+        private bcrypt: HashingService,
         private jwtService: JwtService
     ) { }
 
@@ -24,7 +27,7 @@ export class AuthService {
             throw new UnauthorizedException('Usuario/senha incorretos');
         }
 
-        const isMatch = compareSync(signInDto.password, user.password)
+        const isMatch = await this.bcrypt.compare(signInDto.password, user.password)
 
         if (!isMatch) {
             throw new UnauthorizedException('Usuario/senha incorretos');
