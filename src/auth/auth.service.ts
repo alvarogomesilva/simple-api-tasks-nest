@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { compareSync } from 'bcrypt';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthSignInDto } from './dto/auth-sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
-import { BcryptService } from './hash/bcrypt.service';
 import { HashingService } from './hash/hashing.service';
+import { ConfigType } from '@nestjs/config';
+import jwtConfig from './config/jwt.config';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,11 @@ export class AuthService {
     constructor(
         private prisma: PrismaService,
         private bcrypt: HashingService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+
+        @Inject(jwtConfig.KEY)
+        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
+       
     ) { }
 
     async signIn(signInDto: AuthSignInDto): Promise<any> {
