@@ -37,10 +37,21 @@ export class AuthService {
             throw new UnauthorizedException('Usuario/senha incorretos');
         }
 
-        const payload = { sub: user.id, email: user.email };
+        const token = await this.jwtService.signAsync({
+            sub: user.id,
+            email: user.email
+        }, {
+            secret: this.jwtConfiguration.secret,
+            audience: this.jwtConfiguration.audience,
+            issuer: this.jwtConfiguration.issuer,
+            expiresIn: this.jwtConfiguration.jwtTtl
+        })
 
         return {
-            token: await this.jwtService.signAsync(payload),
-        };
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            token: token
+        }
     }
 }
