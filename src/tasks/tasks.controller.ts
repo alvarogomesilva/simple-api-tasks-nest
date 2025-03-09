@@ -37,7 +37,7 @@ export class TasksController {
     @TokenPayloadParam() tokenPayloadParam: PayloadTokenDto
   ) {
 
-    return this.tasksService.update(+id, updateTaskDto);
+    return this.tasksService.update(+id, updateTaskDto, tokenPayloadParam);
   }
 
   @Delete(':id')

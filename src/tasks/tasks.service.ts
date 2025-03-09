@@ -3,6 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Injectable()
 export class TasksService {
@@ -45,11 +46,15 @@ export class TasksService {
     throw new HttpException('Tarefa não encontrada!', HttpStatus.NOT_FOUND)
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
-    
+  async update(id: number, updateTaskDto: UpdateTaskDto, tokenPayloadParam: PayloadTokenDto) {
+
     const findTask = await this.prisma.task.findFirst({
       where: { id: id }
     })
+
+   if (findTask.userId !== tokenPayloadParam.sub) {
+    throw new HttpException('Não pode atualizar essa tarefa!', HttpStatus.UNAUTHORIZED)
+   }
 
     if (!findTask) {
       throw new HttpException('Tarefa não encontrada!', HttpStatus.NOT_FOUND)
