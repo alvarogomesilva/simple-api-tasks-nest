@@ -6,6 +6,8 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { Request } from 'express';
 import { REQUEST_TOKEN_PAYLOAD } from 'src/auth/constants/auth.constants';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -29,8 +31,12 @@ export class TasksController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: Request) {
-    console.log(req[REQUEST_TOKEN_PAYLOAD])
+  update(
+    @Param('id') id: string, 
+    @Body() updateTaskDto: UpdateTaskDto,
+    @TokenPayloadParam() tokenPayloadParam: PayloadTokenDto
+  ) {
+
     return this.tasksService.update(+id, updateTaskDto);
   }
 
