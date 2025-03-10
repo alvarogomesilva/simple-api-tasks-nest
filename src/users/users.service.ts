@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { hashSync } from 'bcrypt';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Injectable()
 export class UsersService {
@@ -37,7 +38,13 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto, tokenPayloadParam: PayloadTokenDto) {
+    const user = await this.prisma.user.findFirst({ where: { id: id } })
+
+    if (user.id !== tokenPayloadParam.sub) {
+      throw new UnauthorizedException('Não pode atualizar esse usuário')
+    }
+   
     return `This action updates a #${id} user`;
   }
 
