@@ -9,7 +9,4 @@ export class CreateTaskDto {
     @IsString({ message: 'Descrição precisa ser um texto' })
     @IsNotEmpty({ message: 'Descrição não pode ser vazio' })
     description: string;
-
-    @IsNotEmpty({ message: 'Usuário inválido' })
-    userId: number;
 }

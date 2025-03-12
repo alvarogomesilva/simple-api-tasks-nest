@@ -10,13 +10,13 @@ export class TasksService {
 
   constructor(private prisma: PrismaService) { }
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, tokenPayloadParam: PayloadTokenDto) {
     const task = await this.prisma.task.create({
       data: {
         name: createTaskDto.name,
         description: createTaskDto.description,
         completed: false,
-        userId: createTaskDto.userId
+        userId: tokenPayloadParam.sub
       }
     })
 
