@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,6 +11,11 @@ export class TasksService {
   constructor(private prisma: PrismaService) { }
 
   async create(createTaskDto: CreateTaskDto, tokenPayloadParam: PayloadTokenDto) {
+
+    if (!tokenPayloadParam.sub) {
+      throw new UnauthorizedException('Usuário inválido!')
+    }
+
     const task = await this.prisma.task.create({
       data: {
         name: createTaskDto.name,
