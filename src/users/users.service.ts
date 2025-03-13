@@ -39,13 +39,26 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto, tokenPayloadParam: PayloadTokenDto) {
-    const user = await this.prisma.user.findFirst({ where: { id: id } })
+    const findUser = await this.prisma.user.findFirst({ where: { id: id } })
 
-    if (user.id !== tokenPayloadParam.sub) {
+    if (findUser.id !== tokenPayloadParam.sub) {
       throw new UnauthorizedException('Não pode atualizar esse usuário')
     }
+
+    const user = await this.prisma.user.update({
+      where: { id: tokenPayloadParam.sub },
+      data: {
+        name: updateUserDto.name,
+        email: updateUserDto.email
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true
+      }
+    })
    
-    return `This action updates a #${id} user`;
+    return user
   }
 
   remove(id: number) {
