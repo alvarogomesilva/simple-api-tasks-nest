@@ -30,13 +30,13 @@ export class TasksService {
 
   async findAll(paginationDto?: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto
-    
+
     const allTasks = await this.prisma.task.findMany({
       take: limit,
       skip: offset
     });
 
-    if(allTasks.length > 0) return allTasks;
+    if (allTasks.length > 0) return allTasks;
 
     throw new HttpException('Nenhuma tarefa cadastrada!', HttpStatus.NOT_FOUND)
   }
@@ -46,20 +46,19 @@ export class TasksService {
       where: { id: id }
     })
 
-    if(task?.name) return task;
+    if (task?.name) return task;
 
     throw new HttpException('Tarefa não encontrada!', HttpStatus.NOT_FOUND)
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto, tokenPayloadParam: PayloadTokenDto) {
-
     const findTask = await this.prisma.task.findFirst({
       where: { id: id }
     })
 
-   if (findTask.userId !== tokenPayloadParam.sub) {
-    throw new HttpException('Não pode atualizar essa tarefa!', HttpStatus.UNAUTHORIZED)
-   }
+    if (findTask.userId !== tokenPayloadParam.sub) {
+      throw new HttpException('Não pode atualizar essa tarefa!', HttpStatus.UNAUTHORIZED)
+    }
 
     if (!findTask) {
       throw new HttpException('Tarefa não encontrada!', HttpStatus.NOT_FOUND)
@@ -78,7 +77,23 @@ export class TasksService {
 
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: number, tokenPayloadParam: PayloadTokenDto) {
+
+    const findTask = await this.prisma.task.findFirst({ 
+      where: { userId: tokenPayloadParam.sub }
+    })
+
+    if (!findTask) {
+      throw new HttpException('Não pode excluir essa tarefa!', HttpStatus.UNAUTHORIZED)
+    }
+
+    if (findTask.id !== id) {
+      throw new HttpException('Tarefa não encontrada!', HttpStatus.NOT_FOUND)
+    }
+
+    const task = await this.prisma.task.delete({ where: { id: id } })
+    
+
+    return task;
   }
 }

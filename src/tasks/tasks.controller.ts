@@ -45,8 +45,13 @@ export class TasksController {
     return this.tasksService.update(+id, updateTaskDto, tokenPayloadParam);
   }
 
+  
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
+  remove(
+    @Param('id') id: string,
+    @TokenPayloadParam() tokenPayloadParam: PayloadTokenDto
+  ) {
+    return this.tasksService.remove(+id, tokenPayloadParam);
   }
 }
